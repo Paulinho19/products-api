@@ -1,0 +1,28 @@
+# Binários e executáveis compilados
+# (binários do Windows terminam em .exe, então é seguro ignorar ambos)
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Diretório de dependências
+# (No Go 1.11+, o diretório vendor é usado, mas geralmente é ignorado se você usa módulos)
+/vendor/
+
+# Arquivos de workspace do Go (Go 1.18+)
+go.work.sum
+
+# Dados de cobertura de testes, perfis e rastreamentos
+*.out
+*.test
+*.prof
+*.trace
+
+# Arquivos específicos do ambiente (gerados por IDEs)
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
