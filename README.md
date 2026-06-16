@@ -1,12 +1,15 @@
 # Products API
 
-Simple REST API for managing products, built with Go and [Gin](https://github.com/gin-gonic/gin).
+REST API for managing products, built with Go, Gin, and PostgreSQL.
 
 ## Tech Stack
 
-- Go 1.26
-- Gin (HTTP framework)
-- PostgreSQL (via Docker)
+| Tool | Version |
+|------|---------|
+| Go | 1.26.2 |
+| Gin | v1.12.0 |
+| lib/pq | v1.12.3 |
+| PostgreSQL | 12 (Docker) |
 
 ## Prerequisites
 
@@ -21,22 +24,42 @@ Simple REST API for managing products, built with Go and [Gin](https://github.co
    docker-compose up -d
    ```
 
-2. Run the API:
+2. Create the table:
+
+   ```sql
+   CREATE TABLE product (
+     id           SERIAL PRIMARY KEY,
+     product_name VARCHAR(100) NOT NULL,
+     price        NUMERIC(10, 2) NOT NULL
+   );
+   ```
+
+3. Run the API:
 
    ```bash
    go run cmd/main.go
    ```
 
-The server starts on `http://localhost:8000`.
+Server starts on `http://localhost:8000`.
 
 ## Endpoints
 
-| Method | Route       | Description          |
-|--------|-------------|----------------------|
-| GET    | `/ping`     | Health check         |
-| GET    | `/products` | List all products    |
+| Method | Route       | Description       |
+|--------|-------------|-------------------|
+| GET    | `/ping`     | Health check      |
+| GET    | `/products` | List all products |
 
-### Example
+### GET /ping
+
+```bash
+curl http://localhost:8000/ping
+```
+
+```json
+{ "message": "pong" }
+```
+
+### GET /products
 
 ```bash
 curl http://localhost:8000/products
@@ -52,20 +75,48 @@ curl http://localhost:8000/products
 ]
 ```
 
+## Architecture
+
+Request flows through three layers:
+
+```
+HTTP Request
+    ↓
+Controller   (controller/)   — parse request, write response
+    ↓
+UseCase      (usecase/)      — business logic
+    ↓
+Repository   (repository/)   — SQL queries
+    ↓
+PostgreSQL
+```
+
 ## Project Structure
 
 ```
-cmd/            entrypoint (main.go)
-controller/     HTTP handlers
-model/          domain models
-docker-compose.yml  PostgreSQL container
+cmd/
+  main.go              entrypoint, router setup
+controller/
+  product_controller.go  HTTP handlers
+usecase/
+  product_usecase.go   business logic
+repository/
+  product_repository.go  database queries
+model/
+  product.go           domain structs
+db/
+  conn.go              database connection
+docker-compose.yml     PostgreSQL container
 ```
 
 ## Database
 
-PostgreSQL runs via Docker Compose:
+PostgreSQL via Docker Compose:
 
-- Host: `localhost:5432`
-- User: `postgres`
-- Password: `1234`
-- Database: `products`
+| Setting  | Value      |
+|----------|------------|
+| Host     | localhost  |
+| Port     | 5432       |
+| User     | postgres   |
+| Password | 1234       |
+| Database | products   |
